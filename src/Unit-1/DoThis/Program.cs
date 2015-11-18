@@ -10,11 +10,6 @@ namespace WinTail
 
         static void Main(string[] args)
         {
-            // initialize MyActorSystem
-            // YOU NEED TO FILL IN HERE
-
-            PrintInstructions();
-
             MyActorSystem = ActorSystem.Create("MyActorSystem");
 
             var consoleWriterActor = MyActorSystem.ActorOf(Props.Create(() => new ConsoleWriterActor()));
@@ -24,22 +19,6 @@ namespace WinTail
 
             // blocks the main thread from exiting until the actor system is shut down
             MyActorSystem.AwaitTermination();
-        }
-
-        private static void PrintInstructions()
-        {
-            Console.WriteLine("Write whatever you want into the console!");
-            Console.Write("Some lines will appear as");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write(" red ");
-            Console.ResetColor();
-            Console.Write(" and others will appear as");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(" green! ");
-            Console.ResetColor();
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine("Type 'exit' to quit this application at any time.\n");
         }
     }
     #endregion
