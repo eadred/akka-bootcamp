@@ -14,11 +14,11 @@ namespace WinTail
     {
         public const string StartCommand = "start";
         public const string ExitCommand = "exit";
-        private IActorRef _consoleWriterActor;
+        private IActorRef _validationActor;
 
-        public ConsoleReaderActor(IActorRef consoleWriterActor)
+        public ConsoleReaderActor(IActorRef validationActor)
         {
-            _consoleWriterActor = consoleWriterActor;
+            _validationActor = validationActor;
         }
 
         protected override void OnReceive(object message)
@@ -26,10 +26,6 @@ namespace WinTail
             if (message.Equals(StartCommand))
             {
                 DoPrintInstructions();
-            }
-            else if(message is InputError)
-            {
-                _consoleWriterActor.Tell(message as InputError);
             }
 
             GetAndValidateInput(); 
@@ -45,11 +41,8 @@ namespace WinTail
         private void GetAndValidateInput()
         {
             var message = Console.ReadLine();
-            if (string.IsNullOrEmpty(message))
-            {
-                Self.Tell(new NullInputError("No input received."));
-            }
-            else if (String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
+
+            if (!string.IsNullOrEmpty(message) && String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
             {
                 // shut down the system (acquire handle to system via
                 // this actors context)
@@ -57,25 +50,8 @@ namespace WinTail
             }
             else
             {
-                var valid = IsValid(message);
-                if (valid)
-                {
-                    _consoleWriterActor.Tell(new InputSuccess("Thank you! Message was valid."));
-
-                    // continue reading messages from console
-                    Self.Tell(new ContinueProcessing());
-                }
-                else
-                {
-                    Self.Tell(new ValidationError("Invalid: input had odd number of characters."));
-                }
+                _validationActor.Tell(message);
             }    
-        }
-
-        private static bool IsValid(string message)
-        {
-            var valid = message.Length % 2 == 0;
-            return valid;
         }
     }
 }
